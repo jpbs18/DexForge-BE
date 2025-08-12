@@ -11,16 +11,23 @@ router.get("/", async (req: Request, res: Response) => {
 
     const pokemons = await Pokemon.find({})
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .select("id name types sprites.other.official-artwork.front_default");
 
     const total = await Pokemon.countDocuments();
+    const data = pokemons.map(pokemon => ({
+      id: pokemon.id,
+      name: pokemon.name,
+      types: pokemon.types.map(t => t.type.name),
+      front_default: pokemon.sprites.other["official-artwork"].front_default,
+    }));
 
     res.json({
       page,
       limit,
       total,
       totalPages: Math.ceil(total / limit),
-      data: pokemons,
+      data
     });
   } catch (error) {
     console.error("Error fetching paginated Pokémon:", error);
@@ -36,13 +43,21 @@ router.get("/:id", async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid Pokémon ID" });
     }
 
-    const pokemon = await Pokemon.findOne({ id: pokemonId });
+    const pokemon = await Pokemon.findOne({ id: pokemonId })
+      .select("id name types sprites.other.official-artwork.front_default");
 
     if (!pokemon) {
       return res.status(404).json({ message: "Pokémon not found" });
     }
 
-    res.json(pokemon);
+    const result = {
+      id: pokemon.id,
+      name: pokemon.name,
+      types: pokemon.types.map(t => t.type.name),
+      front_default: pokemon.sprites.other["official-artwork"].front_default
+    }
+
+    res.json(result);
   } catch (error) {
     console.error("Error fetching Pokémon:", error);
     res.status(500).json({ message: "Server error" });
