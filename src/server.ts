@@ -11,7 +11,7 @@ dotenv.config();
 connectDB();
 
 const app: Application = express();
-
+app.set("trust proxy", 1)
 app.use(cors(corsConfig));
 app.use(rateLimit(limiterConfig));
 app.use(express.json());
