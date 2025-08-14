@@ -44,14 +44,25 @@ router.get(
       throw new Error("Invalid Pokémon ID");
     }
 
-    const pokemon = await Pokemon.findOne({ id: pokemonId });
+    const pokemon = await Pokemon.findOne({ id: pokemonId })
+      .select("id ame types sprites.other.official-artwork.front_default stats height weight");
 
     if (!pokemon) {
       res.status(404);
       throw new Error("Pokémon not found");
     }
 
-    res.json(pokemon);
+    const data = {
+      id: pokemon.id,
+      name: pokemon.name,
+      types: pokemon.types.map((t) => t.type.name),
+      front_default: pokemon.sprites.other["official-artwork"].front_default,
+      height: pokemon.height,
+      weight: pokemon.weight,
+      stats: pokemon.stats
+    };
+
+    res.json(data);
   })
 );
 
