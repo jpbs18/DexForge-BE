@@ -29,7 +29,7 @@ router.get(
       limit,
       total,
       totalPages: Math.ceil(total / limit),
-      data
+      data,
     });
   })
 );
@@ -44,8 +44,9 @@ router.get(
       throw new Error("Invalid Pokémon ID");
     }
 
-    const pokemon = await Pokemon.findOne({ id: pokemonId })
-      .select("id ame types sprites.other.official-artwork.front_default stats height weight");
+    const pokemon = await Pokemon.findOne({ id: pokemonId }).select(
+      "id name types sprites.other.official-artwork.front_default stats height weight"
+    );
 
     if (!pokemon) {
       res.status(404);
@@ -59,7 +60,7 @@ router.get(
       front_default: pokemon.sprites.other["official-artwork"].front_default,
       height: pokemon.height,
       weight: pokemon.weight,
-      stats: pokemon.stats
+      stats: pokemon.stats,
     };
 
     res.json(data);
