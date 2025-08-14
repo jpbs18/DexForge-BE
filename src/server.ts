@@ -6,6 +6,7 @@ import compression from "compression";
 import connectDB from "./config/db";
 import pokemonRoutes from "./routes/pokemonRoutes";
 import { corsConfig, limiterConfig } from "./config/app";
+import { errorHandler } from "./middlewares/errorHandler";
 
 dotenv.config();
 connectDB();
@@ -17,6 +18,7 @@ app.use(rateLimit(limiterConfig));
 app.use(express.json());
 app.use(compression());
 app.use("/api/pokemons", pokemonRoutes);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
