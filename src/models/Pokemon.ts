@@ -175,6 +175,13 @@ const StatSchema = new Schema(
   { _id: false }
 );
 
+const EvolutionsSchema = new Schema(
+  {
+    species: { type: String, required: true },
+  },
+  { _id: false }
+);
+
 const TypeTypeSchema = new Schema(
   {
     name: String,
@@ -245,6 +252,13 @@ export interface PokemonDocument extends Document {
   weight: number;
 }
 
+export interface PokemonDetailsDocument extends Document {
+  name: string;
+  genders: string[];
+  weaknesses: string[];
+  evolutions: { species: string }[];
+}
+
 const PokemonSchema = new Schema(
   {
     abilities: [AbilitySchema],
@@ -278,4 +292,30 @@ const PokemonSchema = new Schema(
   }
 );
 
-export default mongoose.model<PokemonDocument>("Pokemon", PokemonSchema);
+const PokemonDetailsSchema = new Schema(
+  {
+    name: { type: String, required: true },
+    genders: { type: [String], required: true },
+    weaknesses: { type: [String], required: true },
+    evolutions: { type: [EvolutionsSchema], required: true },
+  },
+  {
+    toJSON: {
+      virtuals: true,
+      versionKey: false,
+      transform: (_, ret: any) => {
+        delete ret._id;
+        return ret;
+      },
+    },
+  }
+);
+
+export const pokemonTable = mongoose.model<PokemonDocument>(
+  "Pokemon",
+  PokemonSchema
+);
+export const pokemonDetailsTable = mongoose.model<PokemonDetailsDocument>(
+  "Pokemon_Details",
+  PokemonDetailsSchema
+);
