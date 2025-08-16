@@ -69,6 +69,7 @@ router.get(
       evolutions: pokemonDetails.evolutions,
       weakenesses: pokemonDetails.weaknesses,
       genders: pokemonDetails.genders,
+      category: pokemonDetails.category,
     };
 
     res.json(data);

@@ -257,6 +257,7 @@ export interface PokemonDetailsDocument extends Document {
   genders: string[];
   weaknesses: string[];
   evolutions: { species: string }[];
+  category: string;
 }
 
 const PokemonSchema = new Schema(
@@ -298,6 +299,7 @@ const PokemonDetailsSchema = new Schema(
     genders: { type: [String], required: true },
     weaknesses: { type: [String], required: true },
     evolutions: { type: [EvolutionsSchema], required: true },
+    category: { type: String, required: true },
   },
   {
     toJSON: {
