@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { pokemonTable, pokemonDetailsTable } from "../models/Pokemon";
 import { asyncHandler } from "../utils/asyncHandler";
+import { ApiError } from "../middlewares/errorHandler";
 
 const router = Router();
 
@@ -41,8 +42,7 @@ router.get(
     const pokemonId = parseInt(req.params.id, 10);
 
     if (isNaN(pokemonId)) {
-      res.status(400);
-      throw new Error("Invalid Pokémon ID");
+      throw new ApiError("Invalid Pokémon ID", 400);
     }
 
     const pokemonDetails = await pokemonDetailsTable.findOne({ id: pokemonId });
@@ -53,8 +53,7 @@ router.get(
       );
 
     if (!pokemon || !pokemonDetails) {
-      res.status(404);
-      throw new Error("Pokémon not found");
+      throw new ApiError("Pokémon not found", 404);
     }
 
     const data = {
@@ -67,7 +66,7 @@ router.get(
       weight: pokemon.weight,
       stats: pokemon.stats,
       evolutions: pokemonDetails.evolutions,
-      weakenesses: pokemonDetails.weaknesses,
+      weaknesses: pokemonDetails.weaknesses,
       genders: pokemonDetails.genders,
       category: pokemonDetails.category,
     };

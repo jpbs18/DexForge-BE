@@ -1,6 +1,7 @@
 import express, { Application } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import compression from "compression";
 import connectDB from "./config/db";
@@ -12,13 +13,23 @@ dotenv.config();
 connectDB();
 
 const app: Application = express();
-app.set("trust proxy", 1)
+app.set("trust proxy", 1);
 app.use(cors(corsConfig));
 app.use(rateLimit(limiterConfig));
+app.use(helmet());
 app.use(express.json());
 app.use(compression());
 app.use("/api/pokemons", pokemonRoutes);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+const server = app.listen(PORT, () =>
+  console.log(`🚀 Server running on port ${PORT}`)
+);
+
+process.on("SIGINT", () => {
+  server.close(() => {
+    console.log("Express server closed");
+    process.exit(0);
+  });
+});
