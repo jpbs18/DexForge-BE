@@ -6,6 +6,7 @@ import rateLimit from "express-rate-limit";
 import compression from "compression";
 import connectDB from "./config/db";
 import pokemonRoutes from "./routes/pokemonRoutes";
+import newsRoutes from "./routes/newsRoutes";
 import { corsConfig, limiterConfig } from "./config/app";
 import { errorHandler } from "./middlewares/errorHandler";
 
@@ -20,6 +21,7 @@ app.use(helmet());
 app.use(express.json());
 app.use(compression());
 app.use("/api/pokemons", pokemonRoutes);
+app.use("/api/news", newsRoutes);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;

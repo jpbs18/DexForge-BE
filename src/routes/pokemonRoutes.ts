@@ -8,8 +8,17 @@ const router = Router();
 router.get(
   "/",
   asyncHandler(async (req: Request, res: Response) => {
-    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
-    const limit = Math.max(parseInt(req.query.limit as string) || 25, 1);
+    const page = parseInt(req.query.page as string);
+    const limit = parseInt(req.query.limit as string);
+
+    if (isNaN(page) || page < 1) {
+      throw new ApiError("`page` must be a positive integer", 400);
+    }
+
+    if (isNaN(limit) || limit < 1) {
+      throw new ApiError("`limit` must be a positive integer", 400);
+    }
+
     const skip = (page - 1) * limit;
     const total = await pokemonTable.countDocuments();
     const totalPages = Math.ceil(total / limit);
@@ -47,7 +56,7 @@ router.get(
 router.get(
   "/:id",
   asyncHandler(async (req: Request, res: Response) => {
-    const pokemonId = parseInt(req.params.id, 10);
+    const pokemonId = parseInt(req.params.id);
 
     if (isNaN(pokemonId) || pokemonId <= 0) {
       throw new ApiError("Invalid Pokémon ID", 400);
