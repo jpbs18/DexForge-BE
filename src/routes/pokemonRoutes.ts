@@ -8,9 +8,18 @@ const router = Router();
 router.get(
   "/",
   asyncHandler(async (req: Request, res: Response) => {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 25;
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit as string) || 25, 1);
     const skip = (page - 1) * limit;
+    const total = await pokemonTable.countDocuments();
+    const totalPages = Math.ceil(total / limit);
+
+    if (page > totalPages) {
+      throw new ApiError(
+        "Invalid page number for the amount of total pages",
+        400
+      );
+    }
 
     const pokemons = await pokemonTable
       .find({})
@@ -18,7 +27,6 @@ router.get(
       .limit(limit)
       .select("id name types sprites.other.official-artwork.front_default");
 
-    const total = await pokemonTable.countDocuments();
     const data = pokemons.map((pokemon) => ({
       id: pokemon.id,
       name: pokemon.name,
@@ -30,7 +38,7 @@ router.get(
       page,
       limit,
       total,
-      totalPages: Math.ceil(total / limit),
+      totalPages,
       data,
     });
   })
@@ -41,7 +49,7 @@ router.get(
   asyncHandler(async (req: Request, res: Response) => {
     const pokemonId = parseInt(req.params.id, 10);
 
-    if (isNaN(pokemonId)) {
+    if (isNaN(pokemonId) || pokemonId <= 0) {
       throw new ApiError("Invalid Pokémon ID", 400);
     }
 
