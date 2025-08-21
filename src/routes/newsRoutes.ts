@@ -3,6 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler";
 import { ApiError } from "../middlewares/errorHandler";
 import dotenv from "dotenv";
 import { Article } from "../models/Article";
+import { ArticleDTO } from "../DTO/ArticleDTO";
 
 dotenv.config();
 const NEWS_API_KEY = process.env.NEWS_API_KEY as string;
@@ -26,7 +27,6 @@ router.get(
       );
     }
 
-    console.log(pageSize)
     const response = await fetch(
       `https://newsapi.org/v2/everything?qInTitle=pokemon&language=en&pageSize=${pageSize}&page=${page}&sortBy=publishedAt&apiKey=${NEWS_API_KEY}`
     );
@@ -37,22 +37,41 @@ router.get(
 
     const data = await response.json();
 
-    const articles = data.articles
-      .filter((article: Article) => article.urlToImage)
-      .map((article: Article) => ({
-        title: article.title,
-        description: article.description,
-        url: article.url,
-        urlToImage: article.urlToImage,
-        publishedAt: article.publishedAt,
-        source: article.source,
-      }));
+    const seen = new Set<string>();
+    const articles: ArticleDTO[] = await Promise.all(
+      data.articles.map(async (article: Article) => {
+        if (!article.urlToImage) return null;
+
+        try {
+          const headResponse = await fetch(article.urlToImage, {
+            method: "HEAD",
+          });
+          if (!headResponse.ok) return null;
+
+          seen.add(article.title);
+          return {
+            title: article.title,
+            description: article.description,
+            url: article.url,
+            urlToImage: article.urlToImage,
+            publishedAt: article.publishedAt,
+            source: article.source,
+          } as ArticleDTO;
+        } catch {
+          return null;
+        }
+      })
+    );
+
+    const filteredArticles = articles.filter(
+      (dto): dto is ArticleDTO => dto !== null
+    );
 
     res.json({
       page,
       pageSize,
       totalResults: data.totalResults,
-      articles,
+      articles: filteredArticles,
     });
   })
 );
