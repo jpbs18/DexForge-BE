@@ -3,7 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler";
 import { ApiError } from "../middlewares/errorHandler";
 import dotenv from "dotenv";
 import { Article } from "../models/Article";
-import { ArticleDTO } from "../DTO/ArticleDTO";
+import { ArticleDTO } from "../dto/AritcleDTO";
 
 dotenv.config();
 const NEWS_API_KEY = process.env.NEWS_API_KEY as string;
