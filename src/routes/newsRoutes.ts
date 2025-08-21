@@ -36,8 +36,8 @@ router.get(
     }
 
     const data = await response.json();
-
     const seen = new Set<string>();
+
     const articles: ArticleDTO[] = await Promise.all(
       data.articles.map(async (article: Article) => {
         if (!article.urlToImage) return null;
