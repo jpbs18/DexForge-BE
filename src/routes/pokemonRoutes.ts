@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { pokemonTable, pokemonDetailsTable } from "../models/Pokemon";
+import { pokemonBasicInfo, pokemonDetailsTable } from "../models/Pokemon";
 import { asyncHandler } from "../utils/asyncHandler";
 import { ApiError } from "../middlewares/errorHandler";
 
@@ -20,7 +20,7 @@ router.get(
     }
 
     const skip = (page - 1) * limit;
-    const total = await pokemonTable.countDocuments();
+    const total = await pokemonBasicInfo.countDocuments();
     const totalPages = Math.ceil(total / limit);
 
     if (page > totalPages) {
@@ -30,25 +30,14 @@ router.get(
       );
     }
 
-    const pokemons = await pokemonTable
-      .find({})
-      .skip(skip)
-      .limit(limit)
-      .select("id name types sprites.other.official-artwork.front_default");
-
-    const data = pokemons.map((pokemon) => ({
-      id: pokemon.id,
-      name: pokemon.name,
-      types: pokemon.types.map((t) => t.type.name),
-      front_default: pokemon.sprites.other["official-artwork"].front_default,
-    }));
+    const pokemons = await pokemonBasicInfo.find({}).skip(skip).limit(limit);
 
     res.json({
       page,
       limit,
       total,
       totalPages,
-      data,
+      data: pokemons,
     });
   })
 );
@@ -63,32 +52,12 @@ router.get(
     }
 
     const pokemonDetails = await pokemonDetailsTable.findOne({ id: pokemonId });
-    const pokemon = await pokemonTable
-      .findOne({ id: pokemonId })
-      .select(
-        "id abilities name types sprites.other.official-artwork.front_default stats height weight"
-      );
 
-    if (!pokemon || !pokemonDetails) {
+    if (!pokemonDetails) {
       throw new ApiError("Pokémon not found", 404);
     }
 
-    const data = {
-      id: pokemon.id,
-      abilities: pokemon.abilities.map((a) => a.ability.name),
-      name: pokemon.name,
-      types: pokemon.types.map((t) => t.type.name),
-      front_default: pokemon.sprites.other["official-artwork"].front_default,
-      height: pokemon.height,
-      weight: pokemon.weight,
-      stats: pokemon.stats,
-      evolutions: pokemonDetails.evolutions,
-      weaknesses: pokemonDetails.weaknesses,
-      genders: pokemonDetails.genders,
-      category: pokemonDetails.category,
-    };
-
-    res.json(data);
+    res.json(pokemonDetails);
   })
 );
 
