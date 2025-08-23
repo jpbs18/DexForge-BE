@@ -1,5 +1,5 @@
 import { ApiError } from "../../middlewares/errorHandler";
-import { pokemonBasicInfo, pokemonDetailsTable } from "./entity";
+import { pokemonBasicInfo, pokemonDetailsTable } from "./entities";
 
 export default class PokemonService {
   static async getAll(page: number, limit: number) {
@@ -27,7 +27,7 @@ export default class PokemonService {
   }
 
   static async getById(id: number) {
-    if (isNaN(id) || id <= 0) {
+    if (isNaN(id) || id <= 0 || id > 1025) {
       throw new ApiError("Invalid Pokémon ID", 400);
     }
 
