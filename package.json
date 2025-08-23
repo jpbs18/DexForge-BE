@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
-    "script": "ts-node-dev src/script.ts"
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "author": "",
@@ -20,13 +19,16 @@
     "express": "^5.1.0",
     "express-rate-limit": "^8.0.1",
     "helmet": "^8.1.0",
+    "mongo-sanitize": "^1.1.0",
     "mongodb": "^6.18.0",
-    "mongoose": "^8.17.1"
+    "mongoose": "^8.17.1",
+    "xss": "^1.0.15"
   },
   "devDependencies": {
     "@types/compression": "^1.8.1",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
+    "@types/mongo-sanitize": "^1.0.3",
     "@types/node": "^24.2.1",
     "@types/node-fetch": "^2.6.13",
     "ts-node-dev": "^2.0.0",
