@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { PokemonController } from "./controller";
-import { asyncHandler } from "../../utils/asyncHandler";
+import { asyncHandler } from "../../middlewares/asyncHandler";
 
 const router = Router();
 

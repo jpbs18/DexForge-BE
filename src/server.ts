@@ -1,17 +1,16 @@
 import express, { Application } from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import compression from "compression";
-import connectDB from "./config/db";
+import connectDB from "./config/database";
 import pokemonRoutes from "./modules/pokemon/route";
 import newsRoutes from "./modules/news/route";
-import { corsConfig, limiterConfig } from "./config/app";
+import { corsConfig, limiterConfig } from "./config/security";
 import { errorHandler } from "./middlewares/errorHandler";
 import { sanitizer } from "./middlewares/sanitizeHandler";
+import { config } from "./config/configuration";
 
-dotenv.config();
 connectDB();
 
 const app: Application = express();
@@ -28,8 +27,8 @@ app.use("/api/pokemons", pokemonRoutes);
 app.use("/api/news", newsRoutes);
 app.use(errorHandler);
 
-const server = app.listen(process.env.PORT, () =>
-  console.log(`🚀 Server running on port ${process.env.PORT}`)
+const server = app.listen(config.port, () =>
+  console.log(`🚀 Server running on port ${config.port}`)
 );
 
 process.on("SIGINT", () => {
