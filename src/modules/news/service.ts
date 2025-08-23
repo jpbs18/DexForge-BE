@@ -16,7 +16,7 @@ export default class NewsService {
     }
 
     const response = await fetch(
-      `${config.newsApiUrl}/v2/everything?qInTitle=pokemon&language=en&pageSize=${pageSize}&page=${page}&sortBy=publishedAt&apiKey=${config.newsApiKey}`
+      `${config.newsApiUrl}/everything?qInTitle=pokemon&language=en&pageSize=${pageSize}&page=${page}&sortBy=publishedAt&apiKey=${config.newsApiKey}`
     );
 
     if (!response.ok) {
