@@ -3,21 +3,13 @@ import { pokemonBasicInfo, pokemonDetailsTable } from "./entities";
 
 export default class PokemonService {
   static async getAll(page: number, limit: number) {
-    if (isNaN(page) || page < 1) {
-      throw new ApiError("`page` must be a positive integer", 400);
-    }
-
-    if (isNaN(limit) || limit < 1) {
-      throw new ApiError("`limit` must be a positive integer", 400);
-    }
-
     const skip = (page - 1) * limit;
     const total = await pokemonBasicInfo.countDocuments();
     const totalPages = Math.ceil(total / limit);
 
-    if (page > totalPages) {
+    if (page <= 0 || page > totalPages) {
       throw new ApiError(
-        "Invalid page number for the amount of total pages",
+        `Invalid page number. Must be between 1 and ${totalPages}`,
         400
       );
     }
@@ -27,11 +19,7 @@ export default class PokemonService {
   }
 
   static async getById(id: number) {
-    if (isNaN(id) || id <= 0 || id > 1025) {
-      throw new ApiError("Invalid Pokémon ID", 400);
-    }
-
-    const pokemon = pokemonDetailsTable.findOne({ id });
+    const pokemon = await pokemonDetailsTable.findOne({ id });
 
     if (!pokemon) {
       throw new ApiError("Pokémon not found", 404);

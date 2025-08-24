@@ -7,20 +7,12 @@ export default class NewsService {
     page: number,
     pageSize: number
   ): Promise<{ totalResults: number; articles: ArticleDTO[] }> {
-    if (page < 1) {
-      throw new ApiError("Page must be a positive integer", 400);
-    }
-
-    if (pageSize < 1 || pageSize > 20) {
-      throw new ApiError("Page size must be between 1 and 20", 400);
-    }
-
     const response = await fetch(
       `${config.newsApiUrl}/everything?qInTitle=pokemon&language=en&pageSize=${pageSize}&page=${page}&sortBy=publishedAt&apiKey=${config.newsApiKey}`
     );
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch news: ${response.status}`);
+      throw new ApiError(`Failed to fetch news: ${response.status}`, 400);
     }
 
     const data = await response.json();
