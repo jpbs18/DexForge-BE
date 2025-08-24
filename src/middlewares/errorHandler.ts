@@ -8,11 +8,22 @@ export class ApiError extends Error {
   }
 }
 
-export function errorHandler(err: any, req: Request, res: Response, next: NextFunction) {
+export const errorHandler = (
+  err: Error | ApiError,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (err instanceof ApiError) {
+    return res.status(err.status).json({
+      success: false,
+      message: err.message,
+    });
+  }
+
   console.error(err);
-
-  const statusCode = err.status || 500;
-  const message = err.message || "Server error";
-
-  res.status(statusCode).json({ message });
-}
+  res.status(500).json({
+    success: false,
+    message: "Internal Server Error",
+  });
+};
