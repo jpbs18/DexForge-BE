@@ -16,7 +16,7 @@ export class PokemonController {
     }
 
     const result = await PokemonService.getAll(page, limit);
-    res.json(result);
+    res.status(200).json(result);
   }
 
   static async getById(req: Request, res: Response) {
@@ -27,6 +27,6 @@ export class PokemonController {
     }
 
     const pokemon = await PokemonService.getById(id);
-    res.json(pokemon);
+    res.status(200).json(pokemon);
   }
 }

@@ -16,7 +16,7 @@ export class NewsController {
       throw new ApiError("Page size must be between 1 and 20", 400);
     }
 
-    res.json({
+    res.status(200).json({
       page,
       pageSize,
       totalResults: result.totalResults,
