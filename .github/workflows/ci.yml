@@ -2,11 +2,9 @@ name: CI – Pokémon Backend
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   test:
@@ -22,7 +20,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20
-          cache: "npm" # optional built-in cache
+          cache: "npm"
 
       # 3️⃣ Cache npm dependencies (robust)
       - name: Cache npm
