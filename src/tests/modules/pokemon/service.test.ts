@@ -1,8 +1,5 @@
 import PokemonService from "../../../modules/pokemon/service";
-import {
-  pokemonBasicInfo,
-  pokemonDetailsTable,
-} from "../../../modules/pokemon/entities";
+import { pokemonBasicInfo, pokemonDetailsTable } from "../../../modules/pokemon/entities";
 import { ApiError } from "../../../middlewares/errorHandler";
 
 jest.mock("../../../modules/pokemon/entities", () => ({
