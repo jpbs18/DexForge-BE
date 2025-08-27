@@ -11,18 +11,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2️⃣ Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
           cache: "npm"
 
-      # 3️⃣ Cache npm dependencies (robust)
       - name: Cache npm
         uses: actions/cache@v3
         with:
@@ -31,15 +28,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      # 4️⃣ Install dependencies
       - name: Install dependencies
         run: npm ci
 
-      # 5️⃣ Run tests with coverage
       - name: Run Jest tests
         run: npm test -- --coverage
 
-      # 6️⃣ Upload coverage as artifact (optional)
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
