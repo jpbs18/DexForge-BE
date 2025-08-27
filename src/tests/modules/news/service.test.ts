@@ -1,6 +1,15 @@
 import NewsService from "../../../modules/news/service";
 import { ApiError } from "../../../middlewares/errorHandler";
 
+beforeAll(() => {
+  process.env.NEWS_API_URL = "https://fake-news-api.com";
+  process.env.NEWS_API_KEY = "fake-api-key";
+});
+afterAll(() => {
+  delete process.env.NEWS_API_URL;
+  delete process.env.NEWS_API_KEY;
+});
+
 global.fetch = jest.fn();
 
 describe("NewsService", () => {
