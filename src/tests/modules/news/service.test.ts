@@ -61,4 +61,33 @@ describe("NewsService", () => {
     expect(result.articles.length).toBe(1);
     expect(result.articles[0].title).toBe("A");
   });
+
+  it("should exclude article if image HEAD request fails", async () => {
+    const apiResponse = {
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        totalResults: 1,
+        articles: [
+          {
+            title: "Broken",
+            urlToImage: null,
+            description: "",
+            url: "",
+            publishedAt: "",
+            source: { id: "3", name: "News3" },
+          },
+        ],
+      }),
+    };
+
+    const badHeadResponse = { ok: false };
+
+    (fetch as jest.Mock)
+      .mockResolvedValueOnce(apiResponse)
+      .mockResolvedValueOnce(badHeadResponse);
+
+    const result = await NewsService.fetchPokemonNews(1, 10);
+
+    expect(result.articles.length).toBe(0);
+  });
 });
