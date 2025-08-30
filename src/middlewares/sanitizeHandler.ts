@@ -5,7 +5,7 @@ import { FilterXSS } from "xss";
 const xssFilter = new FilterXSS({
   whiteList: {},
   stripIgnoreTag: true,
-  stripIgnoreTagBody: ["script"]
+  stripIgnoreTagBody: ["script"],
 });
 
 function sanitizeObject(obj: any): any {

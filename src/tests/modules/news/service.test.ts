@@ -23,71 +23,121 @@ describe("NewsService", () => {
     await expect(NewsService.fetchPokemonNews(1, 10)).rejects.toThrow(ApiError);
   });
 
-  it("should return filtered articles", async () => {
-    const apiResponse = {
-      ok: true,
-      json: jest.fn().mockResolvedValue({
-        totalResults: 2,
-        articles: [
-          {
-            title: "A",
-            urlToImage: "img1",
-            description: "",
-            url: "",
-            publishedAt: "",
-            source: { id: "1", name: "News1" },
-          },
-          {
-            title: "B",
-            urlToImage: null,
-            description: "",
-            url: "",
-            publishedAt: "",
-            source: { id: "2", name: "News2" },
-          },
-        ],
-      }),
-    };
+  it("returns only valid articles with images and unique titles", async () => {
+    (global.fetch as jest.Mock).mockImplementation((url, options) => {
+      if (options?.method === "HEAD") {
+        return Promise.resolve({ ok: true });
+      }
 
-    const headResponse = { ok: true };
-
-    (fetch as jest.Mock)
-      .mockResolvedValueOnce(apiResponse)
-      .mockResolvedValueOnce(headResponse);
+      return Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            totalResults: 3,
+            articles: [
+              {
+                title: "A",
+                urlToImage: "img1",
+                description: "",
+                url: "",
+                publishedAt: "",
+                source: { id: "1", name: "News1" },
+              },
+              {
+                title: "B",
+                urlToImage: null,
+                description: "",
+                url: "",
+                publishedAt: "",
+                source: { id: "2", name: "News2" },
+              },
+              {
+                title: "A",
+                urlToImage: "img2",
+                description: "",
+                url: "",
+                publishedAt: "",
+                source: { id: "3", name: "News3" },
+              },
+            ],
+          }),
+      });
+    });
 
     const result = await NewsService.fetchPokemonNews(1, 10);
-
-    expect(result.totalResults).toBe(2);
+    expect(result.totalResults).toBe(3);
     expect(result.articles.length).toBe(1);
     expect(result.articles[0].title).toBe("A");
   });
 
-  it("should exclude article if image HEAD request fails", async () => {
-    const apiResponse = {
-      ok: true,
-      json: jest.fn().mockResolvedValue({
-        totalResults: 1,
-        articles: [
-          {
-            title: "Broken",
-            urlToImage: null,
-            description: "",
-            url: "",
-            publishedAt: "",
-            source: { id: "3", name: "News3" },
-          },
-        ],
-      }),
-    };
+  it("skips article if image HEAD request fails", async () => {
+    (global.fetch as jest.Mock).mockImplementation((url, options) => {
+      if (options?.method === "HEAD") {
+        return Promise.resolve({ ok: false });
+      }
 
-    const badHeadResponse = { ok: false };
-
-    (fetch as jest.Mock)
-      .mockResolvedValueOnce(apiResponse)
-      .mockResolvedValueOnce(badHeadResponse);
+      return Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            totalResults: 1,
+            articles: [
+              {
+                title: "Broken",
+                urlToImage: "img",
+                description: "",
+                url: "",
+                publishedAt: "",
+                source: { id: "1", name: "News1" },
+              },
+            ],
+          }),
+      });
+    });
 
     const result = await NewsService.fetchPokemonNews(1, 10);
-
     expect(result.articles.length).toBe(0);
+  });
+
+  it("skips article if image HEAD request throws error", async () => {
+    (global.fetch as jest.Mock).mockImplementation((url, options) => {
+      if (options?.method === "HEAD") return Promise.reject(new Error("fail"));
+
+      return Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            totalResults: 1,
+            articles: [
+              {
+                title: "Throw",
+                urlToImage: "img",
+                description: "",
+                url: "",
+                publishedAt: "",
+                source: { id: "1", name: "News1" },
+              },
+            ],
+          }),
+      });
+    });
+
+    const result = await NewsService.fetchPokemonNews(1, 10);
+    expect(result.articles.length).toBe(0);
+  });
+
+  it("handles empty articles array", async () => {
+    (global.fetch as jest.Mock).mockImplementation((url, options) => {
+      if (options?.method === "HEAD") return Promise.resolve({ ok: true });
+
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ totalResults: 0, articles: [] }),
+      });
+    });
+
+    const result = await NewsService.fetchPokemonNews(1, 10);
+    expect(result.totalResults).toBe(0);
+    expect(result.articles).toEqual([]);
   });
 });

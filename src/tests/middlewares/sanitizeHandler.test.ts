@@ -29,4 +29,13 @@ describe("sanitizer middleware", () => {
       expect(tag).not.toContain("<");
     });
   });
+
+  it("should sanitize query parameters", async () => {
+    app.get("/sanitize", (req, res) => res.json(req.query));
+    const query = { search: "<img src=x onerror=alert(1)>" };
+    const res = await request(app).get("/sanitize").query(query);
+
+    expect(res.body.search).not.toContain("<script>");
+    expect(res.body.search).toContain("alert(1)");
+  });
 });
