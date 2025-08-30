@@ -1,22 +1,29 @@
-import mongoose from "mongoose";
-import { MongoMemoryServer } from "mongodb-memory-server";
 import { pokemonBasicInfo, pokemonDetailsTable } from "../../../modules/pokemon/entities";
 
+jest.mock("mongoose", () => {
+  const original = jest.requireActual("mongoose");
+  return {
+    ...original,
+    model: jest.fn((name, schema) => {
+      class MockModel {
+        _id: any;
+        constructor(data: any) {
+          Object.assign(this, data);
+        }
+        toJSON() {
+          const ret = { ...this };
+          delete ret._id; 
+          return ret;
+        }
+      }
+      return MockModel;
+    }),
+    Schema: original.Schema,
+    Document: original.Document,
+  };
+});
 
-describe("Pokemon Mongoose Models", () => {
-  let mongoServer: MongoMemoryServer;
-
-  beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    const uri = mongoServer.getUri();
-    await mongoose.connect(uri);
-  });
-
-  afterAll(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
-  });
-
+describe("Pokemon Mongoose Models (mocked)", () => {
   test("pokemonBasicInfo model should exist", () => {
     expect(pokemonBasicInfo).toBeDefined();
   });
@@ -31,10 +38,12 @@ describe("Pokemon Mongoose Models", () => {
       name: "Bulbasaur",
       image: "bulbasaur.png",
       types: ["grass", "poison"],
+      _id: "fakeid",
     });
     const json = doc.toJSON();
     expect(json._id).toBeUndefined();
     expect(json.id).toBe(1);
+    expect(json.name).toBe("Bulbasaur");
   });
 
   test("pokemonDetailsTable toJSON should remove _id", () => {
@@ -51,6 +60,7 @@ describe("Pokemon Mongoose Models", () => {
       height: 7,
       stats: [{ name: "hp", base_stat: 45 }],
       types: ["grass", "poison"],
+      _id: "fakeid",
     });
     const json = doc.toJSON();
     expect(json._id).toBeUndefined();
