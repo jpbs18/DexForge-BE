@@ -2,17 +2,21 @@ import { Request, Response, NextFunction } from "express";
 import sanitize from "mongo-sanitize";
 import { FilterXSS } from "xss";
 
-const xssFilter = new FilterXSS();
+const xssFilter = new FilterXSS({
+  whiteList: {},
+  stripIgnoreTag: true,
+  stripIgnoreTagBody: ["script"]
+});
 
 function sanitizeObject(obj: any): any {
   if (typeof obj === "string") return xssFilter.process(obj);
+  if (Array.isArray(obj)) return obj.map(sanitizeObject);
   if (typeof obj === "object" && obj !== null) {
     for (const key in obj) {
       obj[key] = sanitizeObject(obj[key]);
     }
   }
 
-  if (Array.isArray(obj)) return obj.map(sanitizeObject);
   return obj;
 }
 
