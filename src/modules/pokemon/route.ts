@@ -4,6 +4,7 @@ import { asyncHandler } from "../../middlewares/asyncHandler";
 
 const router = Router();
 
+router.get("/health", asyncHandler(PokemonController.healthCheck));
 router.get("/", asyncHandler(PokemonController.getAll));
 router.get("/:id", asyncHandler(PokemonController.getById));
 

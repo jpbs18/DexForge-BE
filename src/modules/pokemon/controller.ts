@@ -29,4 +29,8 @@ export class PokemonController {
     const pokemon = await PokemonService.getById(id);
     res.status(200).json(pokemon);
   }
+
+  static async healthCheck(_: Request, res: Response) {
+    res.status(200).json({ status: "ok" });
+  }
 }
